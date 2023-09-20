@@ -9,6 +9,7 @@ const {
   downloadAndSaveImage,
 } = require("../utils/app_functions");
 const otpGenerator = require("otp-generator");
+const otpStorage = new Map();
 
 class AuthController {
   static async login(req, res) {
@@ -104,18 +105,19 @@ class AuthController {
               await user
                 .save()
                 .then(async (data) => {
-                  const otp = otpGenerator.generate(4, {
+                  const otp = otpGenerator.generate(5, {
                     digits: true,
                     lowerCaseAlphabets: false,
                     specialChars: false,
                     upperCaseAlphabets: false,
                   });
-                  res.cookie(email, otp.toString());
+
                   await sendEmail(email, otp);
                   var token = jwt.sign(
                     JSON.stringify(data),
                     process.env.JWT_SECRET
                   );
+                  otpStorage.set(email, otp);
                   res.status(201).json({
                     success: true,
                     message: "User Account Created Successfully!",
@@ -144,35 +146,34 @@ class AuthController {
       });
   }
   static verifyEmail(req, res) {
-    var { email, otp } = req.body;
+    const { otp } = req.body;
+    var token = req.headers.authorization.split("Bearer ")[1];
+    const data = jwt.decode(token);
 
-    if (!email) {
-      res.status(400).json({ success: false, message: "email is required" });
-    } else {
-      User.findOneAndUpdate({ email: email }, { $set: { isVerified: true } })
-        .then((doc) => {
-          if (doc) {
-            if (otp == req.cookies[email]) {
-              res.json({
-                success: true,
-                message: "User verified successfully!",
-                data: doc,
-              });
-            } else {
-              res
-                .status(400)
-                .json({ success: false, message: "check your entered otp" });
-            }
+    User.findByIdAndUpdate(data._id, { $set: { isVerified: true } })
+      .then((doc) => {
+        if (doc) {
+          otpStorage.set(doc.email, otpStorage.get(doc.email));
+
+          if (otpStorage.has(doc.email) && otpStorage.get(doc.email) === otp) {
+            otpStorage.delete();
+            res.json({
+              success: true,
+              message: "User verified successfully!",
+              data: doc,
+            });
           } else {
             res
               .status(400)
-              .json({ success: false, message: "User not found!" });
+              .json({ success: false, message: "check your entered otp" });
           }
-        })
-        .catch((err) => {
-          res.status(400).json({ success: false, message: err.message });
-        });
-    }
+        } else {
+          res.status(400).json({ success: false, message: "User not found!" });
+        }
+      })
+      .catch((err) => {
+        res.status(400).json({ success: false, message: err.message });
+      });
   }
   static updateProfile(req, res) {
     var token = req.headers.authorization.split("Bearer ")[1];
@@ -239,7 +240,6 @@ class AuthController {
         } else {
           var imagePath = "public/ ";
           if (imageUrl) {
-
             imagePath = await downloadAndSaveImage(
               imageUrl,
               "profile",
@@ -257,9 +257,9 @@ class AuthController {
             mobile: " ",
             password: " ",
             location: {
-              address:" ",
-              latitude:" ",
-              longitude:" ",
+              address: " ",
+              latitude: " ",
+              longitude: " ",
             },
             profile: imagePath.split("public/")[1],
           });
@@ -279,7 +279,6 @@ class AuthController {
               });
             })
             .catch((err) => {
-              
               res.status(400).json({ success: false, message: err.message });
             });
         }
@@ -287,6 +286,71 @@ class AuthController {
       .catch((err) => {
         res.status(400).json({ success: false, message: err.message });
       });
+  }
+  static async sendOtp(req, res) {
+    const { email } = req.body;
+    await User.findOne({ email: email })
+      .then(async (doc) => {
+        if (!doc) {
+          res.status(400).json({ success: false, message: "User not found!" });
+        } else {
+          const otp = otpGenerator.generate(5, {
+            digits: true,
+            lowerCaseAlphabets: false,
+            specialChars: false,
+            upperCaseAlphabets: false,
+          });
+          await sendEmail(email, otp);
+          var token = jwt.sign(JSON.stringify(doc), process.env.JWT_SECRET);
+          otpStorage.set(email, otp);
+          res.status(200).json({
+            success: true,
+            message: "Otp has been send your email!",
+            otp: otp,
+            data: doc,
+            token: token,
+          });
+        }
+      })
+      .catch((err) => {
+        res.status(400).json({ success: false, message: err.message });
+      });
+  }
+  static async updatePassword(req, res) {
+    const { email, password } = req.body;
+    if (email == null || password == null) {
+      res
+        .status(400)
+        .json({ success: false, message: "Email or password is missing!" });
+    } else {
+     
+      
+      var user =await User.findOne({ email: email });
+      if (user) {
+        var pass = await bcrupt.hash(password, 10);
+       
+        await User.findOneAndUpdate(
+          { email: email },
+          { $set: { password: pass } },
+          { new: true }
+        )
+          .then((doc) => {
+            res.json({
+              success: true,
+              message: "Password has been updated successfully!",
+              data: doc,
+            });
+          })
+          .catch((err) => {
+            res.status(400).json({ success: false, message: err.message });
+          });
+      } else {
+        
+        res
+          .status(400)
+          .json({ success: false, message: "User not found with this email!" });
+      }
+    }
   }
 }
 

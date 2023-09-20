@@ -38,7 +38,7 @@ async function sendEmail(email, otp) {
   await transport
     .sendMail({
       to: email,
-      from: "contact@hexon.online",
+      from: "petx.org@gmail.com",
       html: otpTemplate,
     })
     .then((res) => {
@@ -77,5 +77,15 @@ async function downloadAndSaveImage(imageUrl, folder,filename, fileExtension) {
     console.error("Error downloading and saving image:", error);
   }
 }
+function endDate(days){
+  
+  var startDate=new Date();
+var  endDate=startDate;
+endDate.setDate(startDate.getDate()+days);
 
-module.exports = { base64_decode, sendEmail ,downloadAndSaveImage};
+  return endDate;
+
+
+}
+
+module.exports = { base64_decode, sendEmail ,downloadAndSaveImage,endDate};

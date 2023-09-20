@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const port = process.env.PORT || 3000;
 const mongoose = require("mongoose");
-const cookie = require("cookie-parser");
+
 
 
 const { authRoutes } = require("./routes/auth_routes");
@@ -10,10 +10,11 @@ const { categoryRoutes } = require("./routes/category_routes");
 
 const { productRoutes } = require("./routes/product_routes");
 const Country = require("./models/country_model");
+const { endDate, sendEmail } = require("./utils/app_functions");
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(cookie());
+
 mongoose.Promise = global.Promise;
 
 mongoose
@@ -64,5 +65,7 @@ app.get("/api/countries/currencies", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
+
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));

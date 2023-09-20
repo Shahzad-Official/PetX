@@ -57,5 +57,5 @@ var productSchema=new mongoose.Schema({
 },{
     versionKey:false,
 });
-var Product=mongoose.model(products,productSchema);
+var Product=mongoose.model("products",productSchema);
 module.exports =Product;

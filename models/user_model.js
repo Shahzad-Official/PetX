@@ -53,6 +53,11 @@ var userSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    subscription:{
+      type:String,
+      enum:["free","basic","premium","gold"],
+      default:"free",
+    },
   },
   {
     versionKey: false,
