@@ -70,12 +70,14 @@ class AuthController {
       mobile,
       password,
       profile,
-      fileType,
-      location,
+
+      address,
+      latitude,
+      longitude,
       gender,
     } = req.body;
 
-    var path = base64_decode(profile, "profile", "profile", fileType);
+    var path = base64_decode(profile, "profile", "profile", "png");
 
     User.findOne({
       email: email,
@@ -98,7 +100,11 @@ class AuthController {
                 mobile: mobile,
                 password: pass,
                 profile: newPath,
-                location: location,
+                location: {
+                  address: address,
+                  latitude: latitude,
+                  longitude: longitude,
+                },
                 gender: gender,
               });
 
@@ -318,38 +324,30 @@ class AuthController {
   }
   static async updatePassword(req, res) {
     const { email, password } = req.body;
-    if (email == null || password == null) {
+
+    var user = await User.findOne({ email: email });
+    if (user) {
+      var pass = await bcrupt.hash(password, 10);
+
+      await User.findOneAndUpdate(
+        { email: email },
+        { $set: { password: pass } },
+        { new: true }
+      )
+        .then((doc) => {
+          res.json({
+            success: true,
+            message: "Password has been updated successfully!",
+            data: doc,
+          });
+        })
+        .catch((err) => {
+          res.status(400).json({ success: false, message: err.message });
+        });
+    } else {
       res
         .status(400)
-        .json({ success: false, message: "Email or password is missing!" });
-    } else {
-     
-      
-      var user =await User.findOne({ email: email });
-      if (user) {
-        var pass = await bcrupt.hash(password, 10);
-       
-        await User.findOneAndUpdate(
-          { email: email },
-          { $set: { password: pass } },
-          { new: true }
-        )
-          .then((doc) => {
-            res.json({
-              success: true,
-              message: "Password has been updated successfully!",
-              data: doc,
-            });
-          })
-          .catch((err) => {
-            res.status(400).json({ success: false, message: err.message });
-          });
-      } else {
-        
-        res
-          .status(400)
-          .json({ success: false, message: "User not found with this email!" });
-      }
+        .json({ success: false, message: "User not found with this email!" });
     }
   }
 }
