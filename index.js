@@ -2,15 +2,13 @@ const express = require("express");
 const app = express();
 const port = process.env.PORT || 3000;
 const mongoose = require("mongoose");
-
-
-
+const fs=require("fs");
 const { authRoutes } = require("./routes/auth_routes");
 const { categoryRoutes } = require("./routes/category_routes");
 
 const { productRoutes } = require("./routes/product_routes");
 const Country = require("./models/country_model");
-const { endDate, sendEmail } = require("./utils/app_functions");
+
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -18,7 +16,7 @@ app.use(express.json());
 mongoose.Promise = global.Promise;
 
 mongoose
-  .connect("mongodb://localhost:27017/BirdX", {
+  .connect("mongodb://localhost:27017/PetX", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
@@ -31,6 +29,7 @@ mongoose
 
 app.use("/api/profile", express.static("./public/profile"));
 app.use("/api/icon", express.static("./public/icon"));
+app.use("/api/product", express.static("./public/product"));
 app.use("/api/auth", authRoutes);
 app.use("/api/cat", categoryRoutes);
 app.use("/api/product", productRoutes);
@@ -57,7 +56,7 @@ app.get("/api/countries/currencies", async (req, res) => {
           perPage: perPage,
           totalDocs: totalCountries.length,
           totalPages: roundedValue,
-          length:doc.length,
+          length: doc.length,
         });
       });
   } catch (error) {

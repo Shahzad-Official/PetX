@@ -16,6 +16,24 @@ function base64_decode(base64Image, folder, filename, fileExtension) {
 
   return filePath;
 }
+function saveListOfFiles(base64Files, folder, filename, fileExtension) {
+  var filesPath = [];
+  var folderPath = path.join(process.cwd(), "/public", folder);
+
+  if (!fs.existsSync(folderPath)) {
+    fs.mkdirSync(folderPath);
+  }
+  base64Files.forEach((e, index) => {
+    var filePath = path.join(
+      folderPath,
+      filename + Date.now() + `(${index})` + "." + fileExtension
+    );
+    fs.writeFileSync(filePath, Buffer.from(e, "base64"));
+    filesPath.push(filePath);
+  });
+
+  return filesPath;
+}
 
 async function sendEmail(email, otp) {
   var emailTemplate = fs.readFileSync(
@@ -48,8 +66,7 @@ async function sendEmail(email, otp) {
       console.log(err);
     });
 }
-async function downloadAndSaveImage(imageUrl, folder,filename, fileExtension) {
-
+async function downloadAndSaveImage(imageUrl, folder, filename, fileExtension) {
   try {
     var folderPath = path.join(process.cwd(), "/public", folder);
     var filePath = path.join(
@@ -77,15 +94,18 @@ async function downloadAndSaveImage(imageUrl, folder,filename, fileExtension) {
     console.error("Error downloading and saving image:", error);
   }
 }
-function endDate(days){
-  
-  var startDate=new Date();
-var  endDate=startDate;
-endDate.setDate(startDate.getDate()+days);
+function calculateDate(days) {
+  var startDate = new Date();
+  var endDate = startDate;
+  endDate.setDate(startDate.getDate() + days);
 
   return endDate;
-
-
 }
 
-module.exports = { base64_decode, sendEmail ,downloadAndSaveImage,endDate};
+module.exports = {
+  base64_decode,
+  sendEmail,
+  downloadAndSaveImage,
+  calculateDate,
+  saveListOfFiles,
+};
