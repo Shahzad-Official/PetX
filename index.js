@@ -34,7 +34,7 @@ app.use("/api/profile", express.static("./public/profile"));
 app.use("/api/icon", express.static("./public/icon"));
 app.use("/api/product", express.static("./public/product"));
 app.use("/api/auth", authRoutes);
-app.use("/api/cat", categoryRoutes);
+app.use("/api/categories", categoryRoutes);
 app.use("/api/product", productRoutes);
 app.get("/", (req, res) => {
   res.json({ message: "hello world" });
