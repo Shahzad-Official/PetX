@@ -3,11 +3,11 @@ const app = express();
 const port = process.env.PORT || 3000;
 const mongoose = require("mongoose");
 
-const { authRoutes } = require("../Node app/PetX/routes/auth_routes");
-const { categoryRoutes } = require("../Node app/PetX/routes/category_routes");
+const { authRoutes } = require("../PetX/routes/auth_routes");
+const { categoryRoutes } = require("../PetX/routes/category_routes");
 
-const { productRoutes } = require("../Node app/PetX/routes/product_routes");
-const Country = require("../Node app/PetX/models/country_model");
+const { productRoutes } = require("../PetX/routes/product_routes");
+const Country = require("../PetX/models/country_model");
 
 app.use(express.urlencoded({ extended: true }));
 app.use(
