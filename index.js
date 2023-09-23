@@ -2,16 +2,19 @@ const express = require("express");
 const app = express();
 const port = process.env.PORT || 3000;
 const mongoose = require("mongoose");
-const fs=require("fs");
-const { authRoutes } = require("./routes/auth_routes");
-const { categoryRoutes } = require("./routes/category_routes");
 
-const { productRoutes } = require("./routes/product_routes");
-const Country = require("./models/country_model");
+const { authRoutes } = require("../Node app/PetX/routes/auth_routes");
+const { categoryRoutes } = require("../Node app/PetX/routes/category_routes");
 
+const { productRoutes } = require("../Node app/PetX/routes/product_routes");
+const Country = require("../Node app/PetX/models/country_model");
 
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(
+  express.json({
+    limit: "20mb",
+  })
+);
 
 mongoose.Promise = global.Promise;
 
@@ -33,6 +36,9 @@ app.use("/api/product", express.static("./public/product"));
 app.use("/api/auth", authRoutes);
 app.use("/api/cat", categoryRoutes);
 app.use("/api/product", productRoutes);
+app.get("/", (req, res) => {
+  res.json({ message: "hello world" });
+});
 app.get("/api/countries/currencies", async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -64,7 +70,5 @@ app.get("/api/countries/currencies", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
-
-
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));

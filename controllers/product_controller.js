@@ -179,6 +179,7 @@ class ProductController {
           perPage: perPageCount,
           totalPages: roundedValue,
           totalDocs: docs.length,
+          currentPage:currentPage,
         });
       })
       .catch((err) => {
