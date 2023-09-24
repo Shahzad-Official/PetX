@@ -350,6 +350,13 @@ class AuthController {
         .json({ success: false, message: "User not found with this email!" });
     }
   }
+  static getAllUsers(req, res) {
+    var token = req.headers.authorization.split("Bearer ")[1];
+    const email = jwt.decode(token).email;
+    User.find({ email: { $ne: email },isVerified:true }).then((doc) => {
+      res.status(400).json({ success: false, message: "User data has been fetched!", data: doc });
+    }).catch((err) => { res.status(400).json({ success: false, message: err.message }); });
+  }
 }
 
 exports.AuthController = AuthController;

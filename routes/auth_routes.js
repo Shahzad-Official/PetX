@@ -6,6 +6,7 @@ const { AuthController } = require("../controllers/auth_controller");
 var router=express.Router();
 
 router.post("/login",loginMiddleware,AuthController.login);
+router.get("/",verifyToken,AuthController.getAllUsers);
 router.post("/signUp",signUpMiddleware,AuthController.signUp);
 router.post("/verify",verifyToken,emailVerifyMiddleware,AuthController.verifyEmail);
 router.post("/update-profile",verifyToken,AuthController.updateProfile);
