@@ -10,7 +10,8 @@ const ChatRoutes = require("./routes/chat_routes");
 const ProductRoutes = require("./routes/product_routes");
 const CategoryRoutes = require("./routes/category_routes");
 const ChatController = require("./controllers/chat_controller");
-
+const User = require("./models/user_model");
+const jwt=require("jsonwebtoken");
 
 
 app.use(cors());
@@ -38,7 +39,7 @@ mongoose
 app.use("/api/profile", express.static("./public/profile"));
 app.use("/api/icon", express.static("./public/icon"));
 app.use("/api/product", express.static("./public/product"));
-app.use("/api/auth",AuthRoutes);
+app.use("/api/auth", AuthRoutes);
 app.use("/api/categories", CategoryRoutes);
 app.use("/api/product", ProductRoutes);
 
@@ -88,6 +89,27 @@ const io = new Server(server);
 
 io.on("connection", client => {
   console.log("user connected " + client.id);
+  let user;
+  client.on("updateStatus", async (data) => {
+    await User.findByIdAndUpdate(data.userId, { $set: { isOnline: data.isOnline, lastActive: new Date() } }, { new: true }).then((doc) => {
+      var token = jwt.sign(
+        JSON.stringify(doc),
+        process.env.JWT_SECRET
+      );
+      const obj={
+        success: true,
+        message: "User LoggedIn Successfully!",
+        data: doc,
+        token: token,
+      };
+       
+      user = JSON.stringify(obj);
+    });
+   
+    client.emit("updatedStatus", user);
+  });
+  
+  
   client.on("join_room", (roomId) => {
 
     client.join(roomId.toString());
@@ -103,9 +125,21 @@ io.on("connection", client => {
 
 
   });
+  client.on("isTyping", (roomId) => {
+    console.log("isTyping");
+    client.to(roomId).emit("isTyping", true);
+  });
+  client.on("stopTyping", (roomId) => {
+    client.to(roomId).emit("stopTyping", true);
+  });
+
+
 
 
   client.on("disconnect", (data) => {
+
+
+
     console.log("user disconnected" + data);
   })
 });

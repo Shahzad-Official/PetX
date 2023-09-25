@@ -36,8 +36,9 @@ class ChatController {
         });
 
     }
-    static getChats(req, res) {
+    static async getChats(req, res) {
         const { roomId, receiverId } = req.query;
+        
 const token=req.headers.authorization.split(" ")[1];
 const senderId=jwt.decode(token)._id;
 
@@ -50,16 +51,19 @@ const senderId=jwt.decode(token)._id;
                 },
             },)
         } else if ( receiverId) {
-            pipeline.push({
-                $match: {
-                    senderId: senderId,
-                    receiverId: receiverId,
-                },
-            },);
+          var doc=await  Room.findOne({users:{$all:[receiverId,senderId]}});
+           
+           var newRoomId=doc._id.toHexString();
+           pipeline.push({
+            $match: {
+                roomId: newRoomId,
+            },
+        },)
         }
-
+           
 
         Message.aggregate(pipeline).then((doc) => {
+            
             res.json({ success: true, message: "Messages has been fetched", data: doc });
         }).catch((err) => {
             res.status(400).json({ success: false, message: err.message });

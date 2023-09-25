@@ -353,9 +353,18 @@ class AuthController {
   static getAllUsers(req, res) {
     var token = req.headers.authorization.split("Bearer ")[1];
     const email = jwt.decode(token).email;
-    User.find({ email: { $ne: email },isVerified:true }).then((doc) => {
+    User.find({ email: { $ne: email }, isVerified: true }).then((doc) => {
       res.status(400).json({ success: false, message: "User data has been fetched!", data: doc });
     }).catch((err) => { res.status(400).json({ success: false, message: err.message }); });
+  }
+  static getDataById(req, res) {
+    var { userId } = req.query;
+    
+    User.findById(userId).then((doc) => {
+      
+      res.json({ success: true, message: "User Data Fetched", data: doc });
+     
+    });
   }
 }
 

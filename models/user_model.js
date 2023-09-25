@@ -58,6 +58,14 @@ var userSchema = new mongoose.Schema(
       enum:["free","basic","premium","gold"],
       default:"free",
     },
+    isOnline:{
+      type:Boolean,
+      default:false,
+    },
+    lastActive:{
+      type:Date,
+      
+    },
   },
   {
     versionKey: false,
