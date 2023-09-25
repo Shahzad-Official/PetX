@@ -14,4 +14,6 @@ router.post("/google-signin",googleLoginMiddleware,AuthController.googleSignin);
 router.post("/send-otp",sendOtpMiddleware,AuthController.sendOtp);
 router.post("/update-password",updatePassMiddleware,AuthController.updatePassword);
 
-module.exports.authRoutes =router;
+const AuthRoutes=router;
+
+module.exports =AuthRoutes;

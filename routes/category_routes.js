@@ -15,4 +15,6 @@ router.post(
 );
 router.get("/", verifyToken, CategoryController.getAllCategories);
 
-module.exports.categoryRoutes = router;
+const CategoryRoutes = router;
+
+module.exports = CategoryRoutes;

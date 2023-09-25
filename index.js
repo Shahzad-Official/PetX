@@ -3,24 +3,16 @@ const app = express();
 const server = require("http").createServer(app);
 const port = process.env.PORT || 3000;
 const mongoose = require("mongoose");
-
-
-const { authRoutes } = require("../PetX/routes/auth_routes");
-const { categoryRoutes } = require("../PetX/routes/category_routes");
-
-const { productRoutes } = require("../PetX/routes/product_routes");
-const Country = require("../PetX/models/country_model");
-
 const { Server } = require("socket.io");
-const { authRoutes } = require("./routes/auth_routes");
-const { categoryRoutes } = require("./routes/category_routes");
 const cors = require("cors");
-const { productRoutes } = require("./routes/product_routes");
-const Country = require("./models/country_model");
-const chatRouter = require("./routes/chat_routes");
-const ChatController = require("./controllers/chat_controller");
-app.use(cors());
+const AuthRoutes = require("./routes/auth_routes");
+const ChatRoutes = require("./routes/chat_routes");
+const ProductRoutes = require("./routes/product_routes");
+const CategoryRoutes = require("./routes/category_routes");
 
+
+
+app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(
   express.json({
@@ -45,15 +37,12 @@ mongoose
 app.use("/api/profile", express.static("./public/profile"));
 app.use("/api/icon", express.static("./public/icon"));
 app.use("/api/product", express.static("./public/product"));
-app.use("/api/auth", authRoutes);
-app.use("/api/categories", categoryRoutes);
-app.use("/api/product", productRoutes);
+app.use("/api/auth",AuthRoutes);
+app.use("/api/categories", CategoryRoutes);
+app.use("/api/product", ProductRoutes);
 
-app.get("/", (req, res) => {
-  res.json({ message: "hello world" });
-});
 
-app.use("/api/chat", chatRouter);
+app.use("/api/chat", ChatRoutes);
 
 app.get("/api/countries/currencies", async (req, res) => {
   try {
@@ -85,6 +74,10 @@ app.get("/api/countries/currencies", async (req, res) => {
     console.error("Error fetching data:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
+});
+
+app.get("/", (req, res) => {
+  res.json({ message: "hello world" });
 });
 
 

@@ -7,4 +7,6 @@ const router = express.Router();
 router.post("/", verifyToken,ProductMiddlewares.createProduct,ProductController.addProduct);
 router.get("/",ProductController.getAllProducts);
 
-module.exports.productRoutes=router;
+const ProductRoutes=router;
+
+module.exports=ProductRoutes;
