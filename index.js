@@ -9,6 +9,7 @@ const AuthRoutes = require("./routes/auth_routes");
 const ChatRoutes = require("./routes/chat_routes");
 const ProductRoutes = require("./routes/product_routes");
 const CategoryRoutes = require("./routes/category_routes");
+const ChatController = require("./controllers/chat_controller");
 
 
 
