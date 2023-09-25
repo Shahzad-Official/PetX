@@ -126,8 +126,12 @@ io.on("connection", client => {
 
   });
   client.on("isTyping", (roomId) => {
-    console.log("isTyping");
+   
     client.to(roomId).emit("isTyping", true);
+  });
+  client.on("offline", (roomId) => {
+   
+    client.to(roomId).emit("offline", true);
   });
   client.on("stopTyping", (roomId) => {
     client.to(roomId).emit("stopTyping", true);
