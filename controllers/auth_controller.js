@@ -351,6 +351,7 @@ class AuthController {
     }
   }
   static getAllUsers(req, res) {
+    console.log("getting users");
     var token = req.headers.authorization.split("Bearer ")[1];
     const email = jwt.decode(token).email;
     User.find({ email: { $ne: email }, isVerified: true }).then((doc) => {
