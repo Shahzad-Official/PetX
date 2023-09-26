@@ -13,13 +13,19 @@ class ChatController {
       receiverId: receiverId,
       message: message,
     });
+    let doc2;
     var doc = await User.findById(receiverId).where({ isOnline: false });
+
+    await User.findById(senderId).then((result) => {
+      doc2 = result;
+    });
+
     var data = await messageModel.save();
     if (doc) {
       sendFcmNotification(
         doc.fcmToken,
         "You have an unread message",
-        `${doc.firstName} ${doc.lastName} has send you a message.`,
+        `${doc2.firstName} ${doc2.lastName} has send you a message.`,
         data
       );
     }
@@ -108,7 +114,8 @@ class ChatController {
 
     if (doc) {
       var newRoomId = doc._id.toHexString();
-      Message.findOne({ roomId: newRoomId }).sort({_id:-1})
+      Message.findOne({ roomId: newRoomId })
+        .sort({ _id: -1 })
         .then((doc) => {
           res.json({
             success: true,
