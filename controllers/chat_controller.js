@@ -108,7 +108,7 @@ class ChatController {
 
     if (doc) {
       var newRoomId = doc._id.toHexString();
-      Message.findOne({ roomId: newRoomId })
+      Message.findOne({ roomId: newRoomId }).sort({_id:-1})
         .then((doc) => {
           res.json({
             success: true,
