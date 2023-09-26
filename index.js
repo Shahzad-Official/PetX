@@ -128,7 +128,9 @@ io.on("connection", (client) => {
     client.to(roomId).emit("stopTyping", true);
   });
 
-  client.on("disconnect", (data) => {});
+  client.on("disconnect", (data) => {
+    console.log("user disconnected " + client.id);
+  });
 });
 
 server.listen(port, () =>
