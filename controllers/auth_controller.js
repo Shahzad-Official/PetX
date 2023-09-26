@@ -245,7 +245,7 @@ class AuthController {
           });
         } else {
           var imagePath = "public/ ";
-          if (imageUrl) {
+          if (imageUrl&&imageUrl!=" ") {
             imagePath = await downloadAndSaveImage(
               imageUrl,
               "profile",

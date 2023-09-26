@@ -64,6 +64,7 @@ var userSchema = new mongoose.Schema(
     },
     lastActive: {
       type: Date,
+      default: Date.now,
     },
     fcmToken: {
       type: String,

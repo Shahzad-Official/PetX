@@ -130,5 +130,27 @@ class ChatController {
       res.status(400).json({ success: false, message: "No Message found" });
     }
   }
+  static myChatsWithUser(req, res) {
+    const token = req.headers.authorization.split(" ")[1];
+    const senderId = jwt.decode(token)._id;
+
+    Room.distinct("users")
+      .where({ users: senderId })
+      .then((doc) => {
+        User.find({ _id: { $in: doc } })
+          .where({ _id: { $ne: senderId } })
+          .then(async (result) => {
+         
+            res.json({
+              success: true,
+              message: "Message has been fetched",
+              data: result,
+            });
+          });
+      })
+      .catch((err) => {
+        res.status(400).json({ success: false, message: err.message });
+      });
+  }
 }
 module.exports = ChatController;
