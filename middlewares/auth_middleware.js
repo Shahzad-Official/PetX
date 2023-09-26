@@ -85,10 +85,21 @@ function sendOtpMiddleware(req, res, next) {
   }
 }
 
-function updatePassMiddleware(req,res,next){
+function updatePassMiddleware(req, res, next) {
   var joiSchema = Joi.object({
     email: Joi.string().email().required(),
-    password:Joi.string().min(6).required(),
+    password: Joi.string().min(6).required(),
+  });
+  var { error, value } = joiSchema.validate(req.body);
+  if (error) {
+    res.status(400).json({ success: false, message: error.details[0].message });
+  } else {
+    next();
+  }
+}
+function updateFcmMiddleware(req, res, next) {
+  var joiSchema = Joi.object({
+    fcmToken: Joi.string().required(),
   });
   var { error, value } = joiSchema.validate(req.body);
   if (error) {
@@ -98,7 +109,6 @@ function updatePassMiddleware(req,res,next){
   }
 }
 
-
 module.exports = {
   verifyToken,
   loginMiddleware,
@@ -107,4 +117,5 @@ module.exports = {
   googleLoginMiddleware,
   sendOtpMiddleware,
   updatePassMiddleware,
+  updateFcmMiddleware,
 };

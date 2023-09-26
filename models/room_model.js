@@ -1,11 +1,14 @@
-const mongoose = require('mongoose');
-var roomSchema = new mongoose.Schema({
+const mongoose = require("mongoose");
+var roomSchema = new mongoose.Schema(
+  {
     createdOn: {
-        type: Date,
-        default: Date.now,
+      type: Date,
+      default: Date.now,
     },
     users: [String],
-}, { versionKey: false, },);
+  },
+  { versionKey: false }
+);
 
 const Room = mongoose.model("chatrooms", roomSchema);
 

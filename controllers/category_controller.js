@@ -10,12 +10,10 @@ class CategoryController {
       .then(async (doc) => {
         if (doc) {
           fs.rmSync(path);
-          res
-            .status(400)
-            .json({
-              success: false,
-              message: "This Category is Already available!",
-            });
+          res.status(400).json({
+            success: false,
+            message: "This Category is Already available!",
+          });
         } else {
           var category = new Category({
             categoryName: categoryName,
@@ -42,17 +40,19 @@ class CategoryController {
         res.status(400).json({ success: false, message: err.message });
       });
   }
- static async getAllCategories(req,res){
-   await Category.find().then((doc)=>{
+  static async getAllCategories(req, res) {
+    await Category.find()
+      .then((doc) => {
         res.status(201).json({
-            success: true,
-            message: "All Categories!",
-            data: doc,
-          });
-    }).catch((err)=>{
+          success: true,
+          message: "All Categories!",
+          data: doc,
+        });
+      })
+      .catch((err) => {
         res.status(400).json({ success: false, message: err.message });
-    });
- }
+      });
+  }
 }
 
 module.exports = CategoryController;

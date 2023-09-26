@@ -102,10 +102,28 @@ function calculateDate(days) {
   return endDate;
 }
 
+function sendFcmNotification(fcmToken) {
+  var body = {
+    to: fcmToken,
+    notification: {
+      title: "Check this Mobile (title)",
+      body: "Rich Notification testing (body)",
+    },
+  };
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization:
+      "key=AAAA8mTWLQw:APA91bHZuVFBo4Wpe-zyxQ1Rql1uKx0COwSY_mlIIqji6gIDXq5iDJ6e2YYqIJPIhU9w5lYvB_1ogyOrLyUwcTsNOKhi8UulprOxg2riB_8GwSZVKOu1C1AEygrcTV9Y6VpUCxzWGWDp",
+  };
+
+  axios.post("https://fcm.googleapis.com/fcm/send", body, { headers });
+}
+
 module.exports = {
   base64_decode,
   sendEmail,
   downloadAndSaveImage,
   calculateDate,
   saveListOfFiles,
+  sendFcmNotification,
 };

@@ -1,13 +1,17 @@
- const express = require('express');
-const ChatMiddleware = require('../middlewares/chat_middleware');
-const ChatController = require('../controllers/chat_controller');
-const { verifyToken } = require('../middlewares/auth_middleware');
+const express = require("express");
+const ChatMiddleware = require("../middlewares/chat_middleware");
+const ChatController = require("../controllers/chat_controller");
+const { verifyToken } = require("../middlewares/auth_middleware");
 
-const router=express.Router();
+const router = express.Router();
 
-router.post("/create-room",ChatMiddleware.creatRoom,ChatController.createRoom);
-router.get("/",verifyToken,ChatController.getChats);
+router.post(
+  "/create-room",
+  ChatMiddleware.creatRoom,
+  ChatController.createRoom
+);
+router.get("/", verifyToken, ChatController.getChats);
 
-const ChatRoutes=router;
+const ChatRoutes = router;
 
-module.exports=ChatRoutes;
+module.exports = ChatRoutes;

@@ -351,21 +351,39 @@ class AuthController {
     }
   }
   static getAllUsers(req, res) {
-    console.log("getting users");
+    
     var token = req.headers.authorization.split("Bearer ")[1];
     const email = jwt.decode(token).email;
-    User.find({ email: { $ne: email }, isVerified: true }).then((doc) => {
-      res.status(400).json({ success: false, message: "User data has been fetched!", data: doc });
-    }).catch((err) => { res.status(400).json({ success: false, message: err.message }); });
+    User.find({ email: { $ne: email }, isVerified: true })
+      .then((doc) => {
+        res
+          .status(400)
+          .json({
+            success: false,
+            message: "User data has been fetched!",
+            data: doc,
+          });
+      })
+      .catch((err) => {
+        res.status(400).json({ success: false, message: err.message });
+      });
   }
   static getDataById(req, res) {
     var { userId } = req.query;
-    
+
     User.findById(userId).then((doc) => {
-      
       res.json({ success: true, message: "User Data Fetched", data: doc });
-     
     });
+  }
+  static updateFcm(req,res){
+    var token = req.headers.authorization.split("Bearer ")[1];
+    const id = jwt.decode(token)._id;
+    var {fcmToken}=req.body;
+      User.findByIdAndUpdate(id,{fcmToken:fcmToken}).then((doc)=>{
+        res.json({success:true,message:"user token updated successfully"});
+      }).catch((err)=>{
+        res.status(400).json({success:false,message:err.message});
+      });
   }
 }
 

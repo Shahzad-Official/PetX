@@ -45,26 +45,28 @@ var userSchema = new mongoose.Schema(
         required: true,
       },
     },
-    isVerified:{
-      type:Boolean,
-      default:false,
+    isVerified: {
+      type: Boolean,
+      default: false,
     },
     createdOn: {
       type: Date,
       default: Date.now,
     },
-    subscription:{
-      type:String,
-      enum:["free","basic","premium","gold"],
-      default:"free",
+    subscription: {
+      type: String,
+      enum: ["free", "basic", "premium", "gold"],
+      default: "free",
     },
-    isOnline:{
-      type:Boolean,
-      default:false,
+    isOnline: {
+      type: Boolean,
+      default: false,
     },
-    lastActive:{
-      type:Date,
-      
+    lastActive: {
+      type: Date,
+    },
+    fcmToken: {
+      type: String,
     },
   },
   {

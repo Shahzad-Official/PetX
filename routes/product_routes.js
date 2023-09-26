@@ -4,9 +4,14 @@ const ProductController = require("../controllers/product_controller");
 const ProductMiddlewares = require("../middlewares/product_middlewares");
 const router = express.Router();
 
-router.post("/", verifyToken,ProductMiddlewares.createProduct,ProductController.addProduct);
-router.get("/",ProductController.getAllProducts);
+router.post(
+  "/",
+  verifyToken,
+  ProductMiddlewares.createProduct,
+  ProductController.addProduct
+);
+router.get("/", ProductController.getAllProducts);
 
-const ProductRoutes=router;
+const ProductRoutes = router;
 
-module.exports=ProductRoutes;
+module.exports = ProductRoutes;
