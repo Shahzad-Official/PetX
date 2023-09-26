@@ -112,6 +112,7 @@ io.on("connection", (client) => {
   console.log("user connected " + client.id);
   let user;
   client.on("updateStatus", async (data) => {
+   
     await User.findByIdAndUpdate(
       data.userId,
       { $set: { isOnline: data.isOnline, lastActive: new Date() } },
@@ -147,12 +148,15 @@ io.on("connection", (client) => {
   client.on("offline", (roomId) => {
     client.to(roomId).emit("offline", true);
   });
+  client.on("online", (roomId) => {
+    client.to(roomId).emit("online", true);
+  });
   client.on("stopTyping", (roomId) => {
     client.to(roomId).emit("stopTyping", true);
   });
 
   client.on("disconnect", (data) => {
-    console.log("user disconnected" + data);
+    
   });
 });
 

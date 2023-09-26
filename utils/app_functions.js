@@ -102,12 +102,12 @@ function calculateDate(days) {
   return endDate;
 }
 
-function sendFcmNotification(fcmToken) {
+function sendFcmNotification(fcmToken,title,message) {
   var body = {
     to: fcmToken,
     notification: {
-      title: "Check this Mobile (title)",
-      body: "Rich Notification testing (body)",
+      title: title,
+      body: message,
     },
   };
   const headers = {
