@@ -16,7 +16,12 @@ class ChatController {
     var doc = await User.findById(receiverId).where({ isOnline: false });
     var data = await messageModel.save();
     if (doc) {
-      sendFcmNotification(doc.fcmToken,"You have an unread message",`${doc.firstName} ${doc.lastName} has send you a message.`,data);
+      sendFcmNotification(
+        doc.fcmToken,
+        "You have an unread message",
+        `${doc.firstName} ${doc.lastName} has send you a message.`,
+        data
+      );
     }
 
     return data;
@@ -92,6 +97,35 @@ class ChatController {
       .catch((err) => {
         res.status(400).json({ success: false, message: err.message });
       });
+  }
+  static async checkLastMessage(req, res) {
+    const { receiverId } = req.query;
+
+    const token = req.headers.authorization.split(" ")[1];
+    const senderId = jwt.decode(token)._id;
+   
+
+    var doc = await Room.findOne({ users: { $all: [receiverId, senderId] } });
+
+    if (doc) {
+      var newRoomId = doc._id.toHexString();
+      Message.findOne({roomId:newRoomId})
+      .then((doc) => {
+        res.json({
+          success: true,
+          message: "Message has been fetched",
+          data: doc,
+        });
+        console.log(doc);
+      })
+      .catch((err) => {
+        res.status(400).json({ success: false, message: err.message });
+      });
+    }else{
+      res.status(400).json({success:false,message:"No Message found",});
+    }
+
+   
   }
 }
 module.exports = ChatController;

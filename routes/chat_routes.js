@@ -11,6 +11,7 @@ router.post(
   ChatController.createRoom
 );
 router.get("/", verifyToken, ChatController.getChats);
+router.get("/last-message", verifyToken, ChatController.checkLastMessage);
 
 const ChatRoutes = router;
 
