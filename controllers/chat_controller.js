@@ -52,16 +52,19 @@ class ChatController {
             },)
         } else if (receiverId) {
 
+
             var doc = await Room.findOne({ users: { $all: [receiverId, senderId] } });
 
-          if(doc){
-            var newRoomId = doc._id.toHexString();
-            pipeline.push({
-                $match: {
-                    roomId: newRoomId,
-                },
-            },)
-          }
+            if (doc) {
+
+
+                var newRoomId = doc._id.toHexString();
+                pipeline.push({
+                    $match: {
+                        roomId: newRoomId,
+                    },
+                },)
+            }
         }
 
 
