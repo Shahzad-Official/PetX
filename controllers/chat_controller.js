@@ -103,29 +103,25 @@ class ChatController {
 
     const token = req.headers.authorization.split(" ")[1];
     const senderId = jwt.decode(token)._id;
-   
 
     var doc = await Room.findOne({ users: { $all: [receiverId, senderId] } });
 
     if (doc) {
       var newRoomId = doc._id.toHexString();
-      Message.findOne({roomId:newRoomId})
-      .then((doc) => {
-        res.json({
-          success: true,
-          message: "Message has been fetched",
-          data: doc,
+      Message.findOne({ roomId: newRoomId })
+        .then((doc) => {
+          res.json({
+            success: true,
+            message: "Message has been fetched",
+            data: doc,
+          });
+        })
+        .catch((err) => {
+          res.status(400).json({ success: false, message: err.message });
         });
-        console.log(doc);
-      })
-      .catch((err) => {
-        res.status(400).json({ success: false, message: err.message });
-      });
-    }else{
-      res.status(400).json({success:false,message:"No Message found",});
+    } else {
+      res.status(400).json({ success: false, message: "No Message found" });
     }
-
-   
   }
 }
 module.exports = ChatController;
