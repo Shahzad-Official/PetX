@@ -102,13 +102,14 @@ function calculateDate(days) {
   return endDate;
 }
 
-function sendFcmNotification(fcmToken,title,message) {
+function sendFcmNotification(fcmToken,title,message,data) {
   var body = {
     to: fcmToken,
     notification: {
       title: title,
       body: message,
     },
+    data:data,
   };
   const headers = {
     "Content-Type": "application/json",

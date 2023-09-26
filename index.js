@@ -12,7 +12,6 @@ const CategoryRoutes = require("./routes/category_routes");
 const ChatController = require("./controllers/chat_controller");
 const User = require("./models/user_model");
 const jwt = require("jsonwebtoken");
-const axios = require("axios");
 
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
@@ -43,31 +42,6 @@ app.use("/api/auth", AuthRoutes);
 app.use("/api/categories", CategoryRoutes);
 app.use("/api/product", ProductRoutes);
 
-app.use("/api/notify", (req, res) => {
-  var { fcmToken } = req.body;
-  var body = {
-    to: fcmToken,
-    notification: {
-      title: "Check this Mobile (title)",
-      body: "Rich Notification testing (body)",
-    },
-  };
-  const headers = {
-    "Content-Type": "application/json",
-    Authorization:
-      "key=AAAA8mTWLQw:APA91bHZuVFBo4Wpe-zyxQ1Rql1uKx0COwSY_mlIIqji6gIDXq5iDJ6e2YYqIJPIhU9w5lYvB_1ogyOrLyUwcTsNOKhi8UulprOxg2riB_8GwSZVKOu1C1AEygrcTV9Y6VpUCxzWGWDp",
-  };
-
-  axios
-    .post("https://fcm.googleapis.com/fcm/send", body, { headers })
-    .then((result) => {
-      res.json({ data: result.data });
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(400).json({ error: err });
-    });
-});
 app.use("/api/chat", ChatRoutes);
 
 app.get("/api/countries/currencies", async (req, res) => {
@@ -112,7 +86,6 @@ io.on("connection", (client) => {
   console.log("user connected " + client.id);
   let user;
   client.on("updateStatus", async (data) => {
-   
     await User.findByIdAndUpdate(
       data.userId,
       { $set: { isOnline: data.isOnline, lastActive: new Date() } },
@@ -155,9 +128,7 @@ io.on("connection", (client) => {
     client.to(roomId).emit("stopTyping", true);
   });
 
-  client.on("disconnect", (data) => {
-    
-  });
+  client.on("disconnect", (data) => {});
 });
 
 server.listen(port, () =>

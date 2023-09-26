@@ -13,14 +13,11 @@ class ChatController {
       receiverId: receiverId,
       message: message,
     });
-    User.findById(receiverId)
-      .where({ isOnline: false })
-      .then((doc) => {
-        if (doc) {
-          sendFcmNotification(doc.fcmToken,"You have an unread message",`${doc.firstName} ${doc.lastName} has send you a message.`);
-        }
-      });
+    var doc = await User.findById(receiverId).where({ isOnline: false });
     var data = await messageModel.save();
+    if (doc) {
+      sendFcmNotification(doc.fcmToken,"You have an unread message",`${doc.firstName} ${doc.lastName} has send you a message.`,data);
+    }
 
     return data;
   }
