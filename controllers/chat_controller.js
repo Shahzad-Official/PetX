@@ -140,7 +140,6 @@ class ChatController {
         User.find({ _id: { $in: doc } })
           .where({ _id: { $ne: senderId } })
           .then(async (result) => {
-         
             res.json({
               success: true,
               message: "Message has been fetched",
