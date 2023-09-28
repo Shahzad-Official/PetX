@@ -43,7 +43,7 @@ class CategoryController {
   static async getAllCategories(req, res) {
     await Category.find()
       .then((doc) => {
-        res.status(201).json({
+        res.status(200).json({
           success: true,
           message: "All Categories!",
           data: doc,
