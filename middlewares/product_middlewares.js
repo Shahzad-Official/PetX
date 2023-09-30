@@ -15,7 +15,7 @@ class ProductMiddlewares {
     });
     var { error, value } = joiSchema.validate(req.body);
     if (error) {
-      res.json({ success: false, message: error.details[0].message });
+      res.status(404).json({ success: false, message: error.details[0].message });
     } else {
       next();
     }

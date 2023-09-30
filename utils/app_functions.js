@@ -56,6 +56,7 @@ async function sendEmail(email, otp) {
   await transport
     .sendMail({
       to: email,
+      subject:"Otp Verification",
       from: "petx.org@gmail.com",
       html: otpTemplate,
     })
