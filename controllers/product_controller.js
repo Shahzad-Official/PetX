@@ -86,7 +86,7 @@ class ProductController {
           res.status(400).json({ success: false, message: err.message });
         });
     } else {
-      res.json({ success: false, message: "User not found!" });
+      res.status(404).json({ success: false, message: "User not found!" });
     }
   }
   static async getAllProducts(req, res) {
