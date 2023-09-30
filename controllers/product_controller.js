@@ -29,7 +29,12 @@ class ProductController {
     var user = await User.findById(data._id);
     var subscription = "free";
     var finalDate = calculateDate(10);
+    
     if (user) {
+      await User.find({referrerCode:user.referralCode}).then((doc)=>{
+     finalDate=calculateDate(10+doc.length);
+
+      })
       let thumbnailImage;
       let productThumbnail;
       var otherImages = [];
