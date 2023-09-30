@@ -65,9 +65,11 @@ function googleLoginMiddleware(req, res, next) {
     firstName: Joi.string().min(3).required(),
     lastName: Joi.string(),
     imageUrl: Joi.string(),
+    referrer:Joi.string(),
   });
   var { error, value } = joiSchema.validate(req.body);
   if (error) {
+    console.log(error);
     res.status(400).json({ success: false, message: error.details[0].message });
   } else {
     next();

@@ -69,6 +69,13 @@ var userSchema = new mongoose.Schema(
     fcmToken: {
       type: String,
     },
+    referralCode: {
+      type: String,
+    },
+    referrerCode: {
+      type: String,
+      default: "",
+    },
   },
   {
     versionKey: false,

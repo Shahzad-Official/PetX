@@ -123,6 +123,19 @@ function sendFcmNotification(fcmToken, title, message, data) {
     console.log("message not send");
   }
 }
+function generateShortCode(referrer) {
+  
+  referrer=referrer||"";
+  const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'+referrer;
+  let code = '';
+  for (let i = 0; i < 5; i++) {
+    const randomIndex = Math.floor(Math.random() * charset.length);
+    code += charset.charAt(randomIndex);
+  }
+  
+  return `X-${code}`;
+}
+
 
 module.exports = {
   base64_decode,
@@ -131,4 +144,5 @@ module.exports = {
   calculateDate,
   saveListOfFiles,
   sendFcmNotification,
+  generateShortCode,
 };

@@ -7,6 +7,7 @@ const {
   base64_decode,
   sendEmail,
   downloadAndSaveImage,
+  generateShortCode,
 } = require("../utils/app_functions");
 const otpGenerator = require("otp-generator");
 const otpStorage = new Map();
@@ -70,7 +71,7 @@ class AuthController {
       mobile,
       password,
       profile,
-
+      referrer,
       address,
       latitude,
       longitude,
@@ -100,6 +101,8 @@ class AuthController {
                 mobile: mobile,
                 password: pass,
                 profile: newPath,
+                referralCode: generateShortCode(referrer),
+                referrer: referrer,
                 location: {
                   address: address,
                   latitude: latitude,
@@ -230,7 +233,7 @@ class AuthController {
       });
   }
   static googleSignin(req, res) {
-    const { email, firstName, lastName, imageUrl } = req.body;
+    const { email, firstName, lastName, imageUrl, referrer } = req.body;
 
     User.findOne({ email: email })
       .then(async (doc) => {
@@ -245,7 +248,7 @@ class AuthController {
           });
         } else {
           var imagePath = "public/ ";
-          if (imageUrl&&imageUrl!=" ") {
+          if (imageUrl && imageUrl != " ") {
             imagePath = await downloadAndSaveImage(
               imageUrl,
               "profile",
@@ -260,6 +263,8 @@ class AuthController {
             email: email,
             gender: " ",
             isVerified: true,
+            referralCode: generateShortCode(referrer),
+            referrerCode: referrer,
             mobile: " ",
             password: " ",
             location: {
@@ -351,18 +356,15 @@ class AuthController {
     }
   }
   static getAllUsers(req, res) {
-    
     var token = req.headers.authorization.split("Bearer ")[1];
     const email = jwt.decode(token).email;
     User.find({ email: { $ne: email }, isVerified: true })
       .then((doc) => {
-        res
-          .status(400)
-          .json({
-            success: false,
-            message: "User data has been fetched!",
-            data: doc,
-          });
+        res.status(400).json({
+          success: false,
+          message: "User data has been fetched!",
+          data: doc,
+        });
       })
       .catch((err) => {
         res.status(400).json({ success: false, message: err.message });
@@ -375,14 +377,16 @@ class AuthController {
       res.json({ success: true, message: "User Data Fetched", data: doc });
     });
   }
-  static updateFcm(req,res){
+  static updateFcm(req, res) {
     var token = req.headers.authorization.split("Bearer ")[1];
     const id = jwt.decode(token)._id;
-    var {fcmToken}=req.body;
-      User.findByIdAndUpdate(id,{fcmToken:fcmToken}).then((doc)=>{
-        res.json({success:true,message:"user token updated successfully"});
-      }).catch((err)=>{
-        res.status(400).json({success:false,message:err.message});
+    var { fcmToken } = req.body;
+    User.findByIdAndUpdate(id, { fcmToken: fcmToken })
+      .then((doc) => {
+        res.json({ success: true, message: "user token updated successfully" });
+      })
+      .catch((err) => {
+        res.status(400).json({ success: false, message: err.message });
       });
   }
 }
