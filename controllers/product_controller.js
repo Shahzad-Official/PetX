@@ -175,7 +175,6 @@ class ProductController {
           success: true,
           message: "Products have been fetched",
           data: doc,
-          length: doc.length,
           perPage: perPageCount,
           totalPages: roundedValue,
           totalDocs: docs.length,
