@@ -39,6 +39,7 @@ function signUpMiddleware(req, res, next) {
     latitude: Joi.string().required(),
     longitude: Joi.string().required(),
     gender: Joi.string().required(),
+    referrer:Joi.string().allow("").allow(null).default(null),
   });
 
   var { error, value } = joiSchema.validate(req.body);
@@ -65,7 +66,7 @@ function googleLoginMiddleware(req, res, next) {
     firstName: Joi.string().min(3).required(),
     lastName: Joi.string(),
     imageUrl: Joi.string(),
-    referrer:Joi.string(),
+    referrer:Joi.string().allow("").allow(null).default(null),
   });
   var { error, value } = joiSchema.validate(req.body);
   if (error) {
