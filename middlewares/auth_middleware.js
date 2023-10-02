@@ -53,6 +53,7 @@ function signUpMiddleware(req, res, next) {
 function emailVerifyMiddleware(req, res, next) {
   var joiSchema = Joi.object({
     otp: Joi.string().min(5).required(),
+    email:Joi.string().required(),
   });
   var { error, value } = joiSchema.validate(req.body);
   if (error) {

@@ -168,16 +168,16 @@ class AuthController {
       });
   }
   static verifyEmail(req, res) {
-    const { otp } = req.body;
+    const { otp, email } = req.body;
     var token = req.headers.authorization.split("Bearer ")[1];
     const data = jwt.decode(token);
 
     User.findByIdAndUpdate(data._id, { $set: { isVerified: true } })
       .then((doc) => {
         if (doc) {
-          otpStorage.set(doc.email, otpStorage.get(doc.email));
+          otpStorage.set(email, otpStorage.get(email));
 
-          if (otpStorage.has(doc.email) && otpStorage.get(doc.email) === otp) {
+          if (otpStorage.has(email) && otpStorage.get(email) === otp) {
             otpStorage.delete();
             res.json({
               success: true,
@@ -345,9 +345,10 @@ class AuthController {
             specialChars: false,
             upperCaseAlphabets: false,
           });
+          otpStorage.set(email, otp);
           await sendEmail(email, otp);
           var token = jwt.sign(JSON.stringify(doc), process.env.JWT_SECRET);
-          otpStorage.set(email, otp);
+
           res.status(200).json({
             success: true,
             message: "Otp has been send your email!",
@@ -367,34 +368,50 @@ class AuthController {
     var user = await User.findOne({ email: email });
     if (user) {
       var pass = await bcrupt.hash(password, 10);
-
-      await User.findOneAndUpdate(
-        { email: email },
-        { $set: { password: pass } },
-        { new: true }
-      )
-        .then(async (doc) => {
-          await bcrupt
-            .compare(oldPassword, doc.password)
-            .then((result) => {
-              if (!result) {
-                res.status(400).json({
-                  success: false,
-                  message: "Please check your old password!",
-                });
-              } else {
-                res.json({
-                  success: true,
-                  message: "Password has been updated Successfully!",
-                });
-              }
-            })
-            .catch((err) => {
-              res.status(500).json({ success: false, message: err });
+      await bcrupt
+        .compare(oldPassword, user.password)
+        .then(async (result) => {
+          if (!result) {
+            res.status(400).json({
+              success: false,
+              message: "Please check your old password!",
             });
+          } else {
+            await bcrupt
+              .compare(oldPassword, pass)
+              .then(async (rslt) => {
+                if (rslt) {
+                  res.status(400).json({
+                    success: false,
+                    message:
+                      "New password must be different from the old password!",
+                  });
+                } else {
+                  await User.findOneAndUpdate(
+                    { email: email },
+                    { $set: { password: pass } },
+                    { new: true }
+                  )
+                    .then(async (doc) => {
+                      res.json({
+                        success: true,
+                        message: "Password has been updated Successfully!",
+                      });
+                    })
+                    .catch((err) => {
+                      res
+                        .status(400)
+                        .json({ success: false, message: err.message });
+                    });
+                }
+              })
+              .catch((err) => {
+                res.status(500).json({ success: false, message: err });
+              });
+          }
         })
         .catch((err) => {
-          res.status(400).json({ success: false, message: err.message });
+          res.status(500).json({ success: false, message: err });
         });
     } else {
       res
@@ -408,21 +425,34 @@ class AuthController {
     var user = await User.findOne({ email: email });
     if (user) {
       var pass = await bcrupt.hash(password, 10);
-
-      await User.findOneAndUpdate(
-        { email: email },
-        { $set: { password: pass } },
-        { new: true }
-      )
-        .then((doc) => {
-          res.json({
-            success: true,
-            message: "Password has been updated successfully!",
-            data: doc,
-          });
+      await bcrupt
+        .compare(password, user.password)
+        .then(async (result) => {
+          if (result) {
+            res.status(400).json({
+              success: false,
+              message: "New password must be different from the old password!",
+            });
+          } else {
+            await User.findOneAndUpdate(
+              { email: email },
+              { $set: { password: pass } },
+              { new: true }
+            )
+              .then((doc) => {
+                res.json({
+                  success: true,
+                  message: "Password has been updated successfully!",
+                  data: doc,
+                });
+              })
+              .catch((err) => {
+                res.status(400).json({ success: false, message: err.message });
+              });
+          }
         })
         .catch((err) => {
-          res.status(400).json({ success: false, message: err.message });
+          res.status(500).json({ success: false, message: err });
         });
     } else {
       res
