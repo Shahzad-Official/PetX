@@ -33,13 +33,14 @@ function signUpMiddleware(req, res, next) {
     lastName: Joi.string().min(3).optional(),
     email: Joi.string().email().required(),
     mobile: Joi.string().required(),
+    mobileCode: Joi.string().required(),
     password: Joi.string().min(6).required(),
     profile: Joi.string().required(),
     address: Joi.string().required(),
     latitude: Joi.string().required(),
     longitude: Joi.string().required(),
     gender: Joi.string().required(),
-    referrer:Joi.string().allow("").allow(null).default(null),
+    referrer: Joi.string().allow("").allow(null).default(null),
   });
 
   var { error, value } = joiSchema.validate(req.body);
@@ -66,7 +67,7 @@ function googleLoginMiddleware(req, res, next) {
     firstName: Joi.string().min(3).required(),
     lastName: Joi.string(),
     imageUrl: Joi.string(),
-    referrer:Joi.string().allow("").allow(null).default(null),
+    referrer: Joi.string().allow("").allow(null).default(null),
   });
   var { error, value } = joiSchema.validate(req.body);
   if (error) {
@@ -89,6 +90,19 @@ function sendOtpMiddleware(req, res, next) {
 }
 
 function updatePassMiddleware(req, res, next) {
+  var joiSchema = Joi.object({
+    email: Joi.string().email().required(),
+    password: Joi.string().min(6).required(),
+    oldPassword: Joi.string().required(),
+  });
+  var { error, value } = joiSchema.validate(req.body);
+  if (error) {
+    res.status(400).json({ success: false, message: error.details[0].message });
+  } else {
+    next();
+  }
+}
+function forgetPassMiddleware(req, res, next) {
   var joiSchema = Joi.object({
     email: Joi.string().email().required(),
     password: Joi.string().min(6).required(),
@@ -121,4 +135,5 @@ module.exports = {
   sendOtpMiddleware,
   updatePassMiddleware,
   updateFcmMiddleware,
+  forgetPassMiddleware,
 };

@@ -8,6 +8,7 @@ const {
   sendOtpMiddleware,
   updatePassMiddleware,
   updateFcmMiddleware,
+  forgetPassMiddleware,
 } = require("../middlewares/auth_middleware");
 const { AuthController } = require("../controllers/auth_controller");
 
@@ -40,6 +41,11 @@ router.post(
   "/update-password",
   updatePassMiddleware,
   AuthController.updatePassword
+);
+router.post(
+  "/forget-password",
+  forgetPassMiddleware,
+  AuthController.forgetPassword
 );
 
 const AuthRoutes = router;

@@ -3,6 +3,7 @@ require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const bcrupt = require("bcrypt");
 const fs = require("fs");
+const Country = require("../models/country_model");
 const {
   base64_decode,
   sendEmail,
@@ -27,7 +28,7 @@ class AuthController {
         } else {
           await bcrupt
             .compare(password, doc.password)
-            .then((result) => {
+            .then(async (result) => {
               if (!result) {
                 res.status(400).json({
                   success: false,
@@ -39,12 +40,22 @@ class AuthController {
                   process.env.JWT_SECRET
                 );
                 if (doc.isVerified) {
-                  res.json({
-                    success: true,
-                    message: "User LoggedIn Successfully!",
-                    data: doc,
-                    token: token,
-                  });
+                  var country = doc.location.address.split(",").pop().trim();
+                  await Country.findOne({ countryName: country })
+                    .then((country) => {
+                      res.json({
+                        success: true,
+                        message: "User LoggedIn Successfully!",
+                        data: doc,
+                        country: country,
+                        token: token,
+                      });
+                    })
+                    .catch((err) => {
+                      res
+                        .status(400)
+                        .json({ success: false, message: err.message });
+                    });
                 } else {
                   res.status(401).json({
                     success: false,
@@ -69,6 +80,7 @@ class AuthController {
       lastName,
       email,
       mobile,
+      mobileCode,
       password,
       profile,
       referrer,
@@ -99,6 +111,7 @@ class AuthController {
                 lastName: lastName,
                 email: email,
                 mobile: mobile,
+                mobileCode: mobileCode,
                 password: pass,
                 profile: newPath,
                 referralCode: generateShortCode(referrer),
@@ -194,6 +207,7 @@ class AuthController {
       longitude,
       profile,
       mobile,
+      mobileCode,
       firstName,
       lastName,
     } = req.body;
@@ -202,6 +216,8 @@ class AuthController {
     if (profile) {
       filePath = base64_decode(profile, "profile", "profile", "png");
       profilePath = filePath.split("public/")[1];
+    } else {
+      profilePath = data.profile;
     }
     User.findByIdAndUpdate(
       data._id,
@@ -209,21 +225,30 @@ class AuthController {
         $set: {
           gender: gender,
           location: {
-            latitude: latitude,
-            longitude: longitude,
-            address: address,
+            latitude: latitude || data.latitude,
+            longitude: longitude || data.longitude,
+            address: address || data.address,
           },
           profile: profilePath,
-          firstName: firstName,
-          lastName: lastName,
+          firstName: firstName || data.firstName,
+          lastName: lastName || data.lastName,
           mobile: mobile,
+          mobileCode: mobileCode,
         },
       },
       { new: true }
     )
       .then((doc) => {
         if (doc) {
-          res.json(doc);
+          var token = jwt.sign(JSON.stringify(doc), process.env.JWT_SECRET);
+          if (doc.isVerified) {
+            res.json({
+              success: true,
+              message: "Profile has been updated successfully!",
+              data: doc,
+              token: token,
+            });
+          }
         } else {
           res.status(400).json({ success: false, message: "User not found!" });
         }
@@ -240,12 +265,20 @@ class AuthController {
         if (doc) {
           var token = jwt.sign(JSON.stringify(doc), process.env.JWT_SECRET);
 
-          res.json({
-            success: true,
-            message: "User LoggedIn Successfully!",
-            data: doc,
-            token: token,
-          });
+          var country = doc.location.address.split(",").pop().trim();
+          await Country.findOne({ countryName: country })
+            .then((country) => {
+              res.json({
+                success: true,
+                message: "User LoggedIn Successfully!",
+                data: doc,
+                country: country,
+                token: token,
+              });
+            })
+            .catch((err) => {
+              res.status(400).json({ success: false, message: err.message });
+            });
         } else {
           var imagePath = "public/ ";
           if (imageUrl && imageUrl != " ") {
@@ -266,6 +299,7 @@ class AuthController {
             referralCode: generateShortCode(referrer),
             referrerCode: referrer,
             mobile: " ",
+            mobileCode: " ",
             password: " ",
             location: {
               address: " ",
@@ -328,6 +362,47 @@ class AuthController {
       });
   }
   static async updatePassword(req, res) {
+    const { email, password, oldPassword } = req.body;
+
+    var user = await User.findOne({ email: email });
+    if (user) {
+      var pass = await bcrupt.hash(password, 10);
+
+      await User.findOneAndUpdate(
+        { email: email },
+        { $set: { password: pass } },
+        { new: true }
+      )
+        .then(async (doc) => {
+          await bcrupt
+            .compare(oldPassword, doc.password)
+            .then((result) => {
+              if (!result) {
+                res.status(400).json({
+                  success: false,
+                  message: "Please check your old password!",
+                });
+              } else {
+                res.json({
+                  success: true,
+                  message: "Password has been updated Successfully!",
+                });
+              }
+            })
+            .catch((err) => {
+              res.status(500).json({ success: false, message: err });
+            });
+        })
+        .catch((err) => {
+          res.status(400).json({ success: false, message: err.message });
+        });
+    } else {
+      res
+        .status(400)
+        .json({ success: false, message: "User not found with this email!" });
+    }
+  }
+  static async forgetPassword(req, res) {
     const { email, password } = req.body;
 
     var user = await User.findOne({ email: email });
