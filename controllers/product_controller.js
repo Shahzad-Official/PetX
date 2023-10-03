@@ -95,7 +95,7 @@ class ProductController {
     }
   }
   static async getAllProducts(req, res) {
-    var { catId, page, perPage, userId } = req.query;
+    var { catId, page, perPage, userId,country } = req.query;
     const currentPage = parseInt(page) || 1;
     var perPageCount = parseInt(perPage) || 10;
 
@@ -105,6 +105,7 @@ class ProductController {
       {
         $match: {
           endDate: { $gte: startDate },
+          country:country,
         },
       },
     ];
