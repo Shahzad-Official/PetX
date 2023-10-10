@@ -238,16 +238,27 @@ class AuthController {
       },
       { new: true }
     )
-      .then((doc) => {
+      .then(async (doc) => {
         if (doc) {
           var token = jwt.sign(JSON.stringify(doc), process.env.JWT_SECRET);
           if (doc.isVerified) {
-            res.json({
-              success: true,
-              message: "Profile has been updated successfully!",
-              data: doc,
-              token: token,
-            });
+            var country = doc.location.address.split(",").pop().trim();
+            await Country.findOne({ countryName: country })
+              .then((country) => {
+                res.json({
+                  success: true,
+                  message: "User Profile has been Updated Successfully!",
+                  data: doc,
+                  country: country,
+                  token: token,
+                });
+              })
+              .catch((err) => {
+                res
+                  .status(400)
+                  .json({ success: false, message: err.message });
+              });
+            
           }
         } else {
           res.status(400).json({ success: false, message: "User not found!" });
