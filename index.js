@@ -12,6 +12,8 @@ const CategoryRoutes = require("./routes/category_routes");
 const ChatController = require("./controllers/chat_controller");
 const User = require("./models/user_model");
 const jwt = require("jsonwebtoken");
+const axios=require("axios");
+const otpGenerator=require("otp-generator");
 
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
@@ -76,8 +78,74 @@ app.get("/api/countries/currencies", async (req, res) => {
   }
 });
 
-app.get("/", (req, res) => {
-  res.json({ message: "hello world" });
+app.get("/sendOtp", async (req, res) => {
+  
+  var url = "https://secure.h3techs.com/sms/api/send";
+  var otp = otpGenerator.generate(6, {
+    digits: true,
+    lowerCaseAlphabets: false,
+    specialChars: false,
+    upperCaseAlphabets: false,
+  });
+  var { phone } = req.body;
+  const config = {
+    params: {
+      email: "mushwaririder@gmail.com",
+      to: phone,
+      $mask : "81478",
+      key: "09c31c4800093079e4372d6c794f0d3c45",
+      message: `Your OTP code is for mushwari app ${otp}. For any issue please contact us +923284109818 or visit www.mushwari.com`,
+    },
+  };
+  var countryCode = phone.substring(0, 3);
+  if (countryCode == "+92") {
+    try {
+      var response = await axios.get(url, config);
+      res.json({
+        success: true,
+        message: "Otp has been sent successfully.",
+        data: response.data,
+        otp: otp,
+      });
+    } catch (err) {
+      console.log(err);
+      res
+        .status(500)
+        .json({ success: false, message: "Internal Server Error." });
+    }
+  } else {
+    client.messages
+      .create({
+        body:
+          "MUSHWARI Sent You One Time Passcode " +
+          otp +
+          " Is Valid For 5 Minutes. For More Information please visit www.mushwari.com",
+        messagingServiceSid: "MG053deefe09bb1ffe23c4437c1bc93893",
+        to: phone,
+      })
+      .then((message) => {
+        res.json({
+          success: true,
+          message: "Otp has been sent successfully.",
+          data: {
+            message: message.body,
+            status: message.status,
+            from: message.from,
+            to: message.to,
+            sendDate: message.dateCreated,
+            errorCode: message.errorCode,
+            errorMessage: message.errorMessage,
+          },
+          otp: otp,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+        res
+          .status(500)
+          .json({ success: false, message: "Internal Server Error." });
+      });
+  }
 });
 
 const io = new Server(server);
