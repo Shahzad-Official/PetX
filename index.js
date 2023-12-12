@@ -150,6 +150,10 @@ app.get("/sendOtp", async (req, res) => {
 
 const io = new Server(server);
 
+app.use("/",(req,res)=>{
+  res.json({message:"Hello world"});
+})
+
 io.on("connection", (client) => {
   console.log("user connected " + client.id);
   let user;

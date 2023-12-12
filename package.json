@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon index.js"
+    "start": "nodemon index.js",
+    "pm2":"pm2 start index.js --name PetxApi",
+    "kill":"pm2 delete PetxApi",
+    "restart": "pm2 restart PetxApi"
   },
   "author": "",
   "license": "ISC",
